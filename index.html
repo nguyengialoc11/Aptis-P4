@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reading Practice — QA Version</title>
+<style>
+  :root{--card: #fffff;--muted:#9aa3b2;--text: #fffff;--ok:#24c38b;--bad:#ff6b6b}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{font:13px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#ffffff;color:var(--text)}
+  .wrap{max-width:1920px;margin:auto;padding:16px;height:100%;display:flex;flex-direction:column;gap:10px}
+  header h1{margin:0;font-size:22px}
+  header p{margin:4px 0 0;color:var(--muted)}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  select,button,input[type="checkbox"]{vertical-align:middle}
+  select,button{padding:6px 10px;border-radius:8px;border:1px solid #2a3244;background:#ffffff;color:var(--text)}
+  button{cursor:pointer;font-weight:600}
+  .grid{display:grid;gap:14px;grid-template-columns:1.2fr 1fr;flex:1;min-height:0}
+  .card{background:var(--card);border:1px solid #ffffff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:auto}
+  .passages,.questions{padding:14px}
+  .p-item+.p-item{margin-top:10px}
+  .p-title{font-weight:500;margin-bottom:10px}
+  .q-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  .q{display:grid;grid-template-columns:1fr 240px;align-items:center;border:1px solid #ffffff;border-radius:8px;padding:8px}
+  .q.ok{border-color:var(--ok)} .q.bad{border-color:var(--bad)}
+  select.answer{width:100%;padding:6px 8px;background:#ffffff;border:1px solid #22314a;border-radius:8px}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .score{font-weight:700}
+  .pill{padding:4px 8px;border-radius:999px;background:#1b2540;color:#cfe0ff;font-size:12px}
+  .nav{display:flex;gap:6px;margin-left:auto}
+  .chk{display:inline-flex;gap:6px;align-items:center;padding:4px 8px;background:#ffffff;border-radius:8px;border:1px solid #ffffff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Reading Practice</h1>
+    <p>Autoload • Check results • Navigate topics/versions • Shuffle QA</p>
+    <div class="toolbar">
+      <label>Topic:
+        <select id="topicSelect"></select>
+      </label>
+      <label>Version:
+        <select id="versionSelect"></select>
+      </label>
+      <label class="chk">
+        <input type="checkbox" id="autoShuffle" checked />
+        Auto-shuffle on load
+      </label>
+      <span id="desc" class="pill"></span>
+      <div class="nav">
+        <button id="prevTopic">⟵ Prev Topic</button>
+        <button id="nextTopic">Next Topic ⟶</button>
+        <button id="prevVer" title="Previous version">v⟵</button>
+        <button id="nextVer" title="Next version">⟶v</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="grid">
+    <article class="card passages">
+      <h3>Paragraphs</h3>
+      <div id="paragraphs"></div>
+    </article>
+
+    <aside class="card questions">
+      <h3>Answer the questions</h3>
+      <ul class="q-list" id="qList"></ul>
+      <div class="controls">
+        <button id="checkBtn">Check</button>
+        <button id="showKeyBtn">Show Key</button>
+        <button id="shuffleBtn">Shuffle</button>
+        <button id="resetBtn">Reset</button>
+        <span class="score" id="score"></span>
+      </div>
+    </aside>
+  </section>
+</div>
+
+<script type="module">
+let manifest=null, topicIdx=0, verIdx=0, currentQA=[];
+const els={
+  topic:document.getElementById('topicSelect'),
+  version:document.getElementById('versionSelect'),
+  autoShuffle:document.getElementById('autoShuffle'),
+  desc:document.getElementById('desc'),
+  paras:document.getElementById('paragraphs'),
+  qList:document.getElementById('qList'),
+  score:document.getElementById('score')
+};
+
+/* ---------- Utils ---------- */
+const shuffle = a => a.map(x=>({r:Math.random(),x})).sort((p,q)=>p.r-q.r).map(o=>o.x);
+
+/* ---------- Manifest ---------- */
+async function loadManifest(){
+  const res=await fetch('data/manifest.json',{cache:'no-store'});
+  manifest=await res.json();
+  els.topic.innerHTML='';
+  manifest.topics.forEach((t,i)=>{
+    const o=document.createElement('option');
+    o.value=i;
+    o.textContent=t.title;
+    els.topic.appendChild(o);
+  });
+  loadTopic(0,0);
+}
+
+function fillVersions(){
+  const t=manifest.topics[topicIdx];
+  els.version.innerHTML='';
+  t.versions.forEach((v,i)=>{
+    const o=document.createElement('option');
+    o.value=i;
+    o.textContent=v.ver.toUpperCase();
+    els.version.appendChild(o);
+  });
+  els.version.value=verIdx;
+  els.desc.textContent=`${t.title} — ${t.versions[verIdx].ver.toUpperCase()}`;
+}
+
+/* ---------- Render ---------- */
+async function loadTopic(ti,vi){
+  topicIdx=ti; verIdx=vi;
+  els.paras.innerHTML=''; els.qList.innerHTML=''; els.score.textContent='';
+  fillVersions();
+
+  const file = manifest.topics[topicIdx].versions[verIdx].path;
+  const mod = await import(`./data/${file}?v=${Date.now()}`);
+
+  // render paragraphs
+  (mod.data || []).forEach(p=>{
+    const div=document.createElement('div');
+    div.className='p-item';
+    div.innerHTML=`<div class="p-title">${p}</div>`;
+    els.paras.appendChild(div);
+  });
+
+  // render QA
+  currentQA = Array.isArray(mod.qa) ? [...mod.qa] : [];
+  if (els.autoShuffle.checked) currentQA = shuffle(currentQA);
+  renderQA(currentQA);
+}
+
+function renderQA(qa){
+  els.qList.innerHTML='';
+  qa.forEach(({question,key})=>{
+    const li=document.createElement('li');
+    li.className='q';
+    li.dataset.k=key;
+    const sel=document.createElement('select');
+    sel.className='answer';
+    sel.innerHTML='<option value="" disabled selected>Select answer</option>'+
+      ['A','B','C','D'].map(a=>`<option value="${a}">${a}</option>`).join('');
+    li.appendChild(Object.assign(document.createElement('label'),{textContent:question}));
+    li.appendChild(sel);
+    els.qList.appendChild(li);
+  });
+}
+
+/* ---------- Actions ---------- */
+function check(){
+  let correct=0;
+  const all = document.querySelectorAll('.q');
+  all.forEach(li=>{
+    const sel=li.querySelector('select');
+    li.classList.remove('ok','bad');
+    if(!sel.value){li.classList.add('bad');return;}
+    if(sel.value===li.dataset.k){li.classList.add('ok');correct++;}
+    else li.classList.add('bad');
+  });
+
+  els.score.textContent=`Score: ${correct}/${all.length}`;
+
+  // ✅ Nếu đúng hết → chuyển version / topic kế
+  if (correct === all.length){
+    const t = manifest.topics[topicIdx];
+    const nextVer = verIdx + 1;
+    if (nextVer < t.versions.length){
+      // Còn version tiếp theo trong topic
+      verIdx = nextVer;
+      alert(`🎉 Chính xác hết! Chuyển sang ${t.title} ${t.versions[verIdx].ver.toUpperCase()}`);
+      loadTopic(topicIdx, verIdx);
+    } else {
+      // Hết version → sang topic kế
+      topicIdx = (topicIdx + 1) % manifest.topics.length;
+      verIdx = 0;
+      alert(`✅ Hoàn tất ${t.title}! Sang topic tiếp theo: ${manifest.topics[topicIdx].title}`);
+      els.topic.value = topicIdx;
+      loadTopic(topicIdx, verIdx);
+    }
+  }
+}
+
+function showKey(){
+  document.querySelectorAll('.q').forEach(li=>{
+    const sel=li.querySelector('select');
+    [...sel.options].forEach(o=>{
+      if(o.value===li.dataset.k && !o.textContent.includes('✓'))
+        o.textContent += ' ✓';
+    });
+  });
+}
+
+function reset(){
+  els.score.textContent='';
+  document.querySelectorAll('.q').forEach(li=>li.classList.remove('ok','bad'));
+  document.querySelectorAll('select.answer').forEach(s=>s.value='');
+}
+
+function shuffleNow(){
+  if(!currentQA.length) return;
+  currentQA = shuffle(currentQA);
+  renderQA(currentQA);
+  els.score.textContent='';
+}
+
+/* ---------- Navigation ---------- */
+function nextTopic(){
+  topicIdx=(topicIdx+1)%manifest.topics.length;
+  verIdx=0;
+  els.topic.value=topicIdx;
+  loadTopic(topicIdx,verIdx);
+}
+function prevTopic(){
+  topicIdx=(topicIdx-1+manifest.topics.length)%manifest.topics.length;
+  verIdx=0;
+  els.topic.value=topicIdx;
+  loadTopic(topicIdx,verIdx);
+}
+function nextVer(){
+  const t=manifest.topics[topicIdx];
+  verIdx=(verIdx+1)%t.versions.length;
+  loadTopic(topicIdx,verIdx);
+}
+function prevVer(){
+  const t=manifest.topics[topicIdx];
+  verIdx=(verIdx-1+t.versions.length)%t.versions.length;
+  loadTopic(topicIdx,verIdx);
+}
+
+/* ---------- Events ---------- */
+els.topic.addEventListener('change',e=>loadTopic(+e.target.value,0));
+els.version.addEventListener('change',e=>loadTopic(topicIdx,+e.target.value));
+document.getElementById('checkBtn').addEventListener('click',check);
+document.getElementById('showKeyBtn').addEventListener('click',showKey);
+document.getElementById('resetBtn').addEventListener('click',reset);
+document.getElementById('shuffleBtn').addEventListener('click',shuffleNow);
+document.getElementById('nextTopic').addEventListener('click',nextTopic);
+document.getElementById('prevTopic').addEventListener('click',prevTopic);
+document.getElementById('nextVer').addEventListener('click',nextVer);
+document.getElementById('prevVer').addEventListener('click',prevVer);
+
+/* ---------- Boot ---------- */
+loadManifest();
+</script>
+</body>
+</html>

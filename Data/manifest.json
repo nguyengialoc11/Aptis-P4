@@ -1,0 +1,63 @@
+{
+  "topics": [
+    {
+      "id": "music_festival",
+      "title": "Music Festival",
+      "versions": [
+        { "ver": "v1", "path": "topic1_2__music_festival.js" },
+        { "ver": "v2", "path": "topic1_2__music_festival_1.js" }
+      ]
+    },
+    {
+      "id": "childhood_memories",
+      "title": "Childhood Memories",
+      "versions": [
+        { "ver": "v1", "path": "topic3__ childhood_memories.js" }
+      ]
+    },
+    {
+      "id": "extreme_sport",
+      "title": "Extreme Sport",
+      "versions": [
+        { "ver": "v1", "path": "topic4_5__extreme_sport .js" },
+        { "ver": "v2", "path": "topic4_5__extreme_sport_1 .js" }
+      ]
+    },
+    {
+      "id": "free_time_activity",
+      "title": "Free Time Activity",
+      "versions": [
+        { "ver": "v1", "path": "topic6__ free_time_activity.js" }
+      ]
+    },
+    {
+      "id": "games_from_childhood",
+      "title": "Games from Childhood",
+      "versions": [
+        { "ver": "v1", "path": "topic7__ games_from_childhood.js" }
+      ]
+    },
+    {
+      "id": "job_and_training",
+      "title": "Job and Training",
+      "versions": [
+        { "ver": "v1", "path": "topic8__ job_and_training.js" }
+      ]
+    },
+    {
+      "id": "technology_in_childhood",
+      "title": "Technology in Childhood",
+      "versions": [
+        { "ver": "v1", "path": "topic9_10__technology_in_Childhood .js" },
+        { "ver": "v2", "path": "topic9_10__technology_in_childhood_1.js" }
+      ]
+    },
+    {
+      "id": "work_and_life_balance",
+      "title": "Work and Life Balance",
+      "versions": [
+        { "ver": "v1", "path": "topic11__work_and_life_balance.js" }
+      ]
+    }
+  ]
+}
