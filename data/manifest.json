@@ -5,7 +5,8 @@
       "title": "Music Festival",
       "versions": [
         { "ver": "v1", "path": "topic1_2__music_festival.js" },
-        { "ver": "v2", "path": "topic1_2__music_festival_1.js" }
+        { "ver": "v2", "path": "topic1_2__music_festival_1.js"},
+        { "ver": "v3", "path": "topic1_2__music_festival_2.js"}
       ]
     },
     {
@@ -20,7 +21,8 @@
       "title": "Extreme Sport",
       "versions": [
         { "ver": "v1", "path": "topic4_5__extreme_sport .js" },
-        { "ver": "v2", "path": "topic4_5__extreme_sport_1 .js" }
+        { "ver": "v2", "path": "topic4_5__extreme_sport_1 .js" },
+        { "ver": "v3", "path": "topic4_5__extreme_sport_2.js" }
       ]
     },
     {
@@ -57,6 +59,20 @@
       "title": "Work and Life Balance",
       "versions": [
         { "ver": "v1", "path": "topic11__work_and_life_balance.js" }
+      ]
+    },
+    {
+      "id": "volunteering",
+      "title": "Volunteering",
+      "versions": [
+        { "ver": "v1", "path": "topic12__volunteering.js" }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel",
+      "versions": [
+        { "ver": "v1", "path": "topic13__travel.js" }
       ]
     }
   ]

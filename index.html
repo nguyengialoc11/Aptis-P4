@@ -5,38 +5,114 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Reading Practice — QA Version</title>
 <style>
-  :root{--card: #fffff;--muted:#9aa3b2;--text: #fffff;--ok:#24c38b;--bad:#ff6b6b}
+  :root{
+    --bg:#f7f9fc;
+    --card:#ffffff;
+    --line:#e5e7eb;
+    --text:#0f172a;
+    --muted:#6b7280;
+    --ok:#16a34a;
+    --bad:#ef4444;
+    --accent:#1f2937;
+    --topic:#dc2626; /* đỏ cho Topic */
+  }
+
   *{box-sizing:border-box}
   html,body{height:100%;margin:0}
-  body{font:13px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#ffffff;color:var(--text)}
-  .wrap{max-width:1920px;margin:auto;padding:16px;height:100%;display:flex;flex-direction:column;gap:10px}
-  header h1{margin:0;font-size:22px}
-  header p{margin:4px 0 0;color:var(--muted)}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  body{
+    font:13px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    background:#ffffff; color:var(--text);
+  }
+
+  /* khung tổng */
+  .wrap{
+    max-width:1920px;
+    margin:auto;
+    padding:10px;
+    height:100%;
+    display:flex; flex-direction:column; gap:16px;
+  }
+
+  /* header */
+  header h1{margin:0 0 2px;font-size:22px;font-weight:800;letter-spacing:.2px}
+  header p{margin:0 0 10px;color:var(--muted)}
+
+  /* thanh công cụ (giữ nguyên nút) */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  label{display:inline-flex;gap:8px;align-items:center}
   select,button,input[type="checkbox"]{vertical-align:middle}
-  select,button{padding:6px 10px;border-radius:8px;border:1px solid #2a3244;background:#ffffff;color:var(--text)}
-  button{cursor:pointer;font-weight:600}
-  .grid{display:grid;gap:14px;grid-template-columns:1.2fr 1fr;flex:1;min-height:0}
-  .card{background:var(--card);border:1px solid #ffffff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:auto}
-  .passages,.questions{padding:14px}
-  .p-item+.p-item{margin-top:10px}
-  .p-title{font-weight:500;margin-bottom:10px}
+  select,button{
+    padding:8px 12px;border-radius:10px;border:1px solid var(--line);
+    background:#fff;color:var(--text)
+  }
+  button{cursor:pointer;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.03)}
+  button:hover{background:#f8fafc}
+  .chk{
+    display:inline-flex;gap:8px;align-items:center;
+    padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:#fff
+  }
+  .nav{display:flex;gap:8px;margin-left:auto}
+
+  /* Topic nổi bật như ảnh mẫu */
+  #desc{
+    display:block; /* biến pill thành dòng tiêu đề */
+    margin:8px 0 0;
+    font-size:20px;font-weight:800;color:var(--topic);
+    background:transparent;border:0;padding:0
+  }
+
+  /* lưới 2 cột */
+  .grid{display:grid;gap:16px;grid-template-columns:1.2fr 1fr;flex:1;min-height:0}
+
+  /* card */
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    box-shadow:0 6px 18px rgba(17,24,39,.06);
+    display:flex;flex-direction:column;overflow:auto
+  }
+  .passages,.questions{padding:18px}
+  .passages h3,.questions h3{margin:0 0 12px;font-size:18px;font-weight:800}
+
+  /* đoạn văn */
+  .p-item+.p-item{margin-top:12px}
+  .p-title{font-weight:500}
+
+  /* danh sách câu hỏi */
   .q-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
-  .q{display:grid;grid-template-columns:1fr 240px;align-items:center;border:1px solid #ffffff;border-radius:8px;padding:8px}
-  .q.ok{border-color:var(--ok)} .q.bad{border-color:var(--bad)}
-  select.answer{width:100%;padding:6px 8px;background:#ffffff;border:1px solid #22314a;border-radius:8px}
-  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
-  .score{font-weight:700}
-  .pill{padding:4px 8px;border-radius:999px;background:#1b2540;color:#cfe0ff;font-size:12px}
-  .nav{display:flex;gap:6px;margin-left:auto}
-  .chk{display:inline-flex;gap:6px;align-items:center;padding:4px 8px;background:#ffffff;border-radius:8px;border:1px solid #ffffff}
+  .q{
+    display:grid;grid-template-columns:1fr 240px;align-items:center;
+    gap:12px;
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+    background:#fff;
+  }
+  .q.ok{border-color:var(--ok); box-shadow:0 0 0 3px rgba(22,163,74,.12) inset}
+  .q.bad{border-color:var(--bad); box-shadow:0 0 0 3px rgba(239,68,68,.12) inset}
+
+  .q label{font-weight:500}
+  select.answer{
+    width:100%; padding:8px 10px; background:#fff;
+    border:1px solid var(--line); border-radius:10px;
+  }
+  select.answer:focus{outline:2px solid #c7d2fe; outline-offset:2px}
+
+  /* khu điều khiển bên dưới */
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .score{font-weight:800;margin-left:auto}
+
+  /* responsive */
+  @media (max-width: 960px){
+    .grid{grid-template-columns:1fr}
+    .q{grid-template-columns:1fr}
+    .nav{width:100%;justify-content:flex-start;margin-left:0}
+    #desc{font-size:18px}
+  }
 </style>
+
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>Reading Practice</h1>
-    <p>Autoload • Check results • Navigate topics/versions • Shuffle QA</p>
     <div class="toolbar">
       <label>Topic:
         <select id="topicSelect"></select>
@@ -65,7 +141,6 @@
     </article>
 
     <aside class="card questions">
-      <h3>Answer the questions</h3>
       <ul class="q-list" id="qList"></ul>
       <div class="controls">
         <button id="checkBtn">Check</button>
