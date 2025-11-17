@@ -6,11 +6,11 @@ export const data = [
 ];
 
 export const qa = [
-  { question: "Who enjoyed the music throughout the festival?", key: "C" },
+  { question: "Who enjoyed the music the festival?", key: "C" },
   { question: "Who thought it was expensive?", key: "C" },
   { question: "Who only liked the last day?", key: "A" },
-  { question: "Who was disappointed with the weather?", key: "A" },
-  { question: "Who didn't like the festival overall?", key: "B" },
+  { question: "Who was disliked with the weather?", key: "A" },
+  { question: "Who was disappointed the festival?", key: "B" },
   { question: "Who met old friends again?", key: "D" },
   { question: "Who thought the location was not good?", key: "D" }
 ];
